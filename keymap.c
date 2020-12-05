@@ -6,11 +6,24 @@ enum custom_keycodes {
     VDKTP_L, // virtual desktop left
     TAB_R,   // move to the tab to the right (for chrome)
     TAB_L,   // move to the tab to the left (for chrome)
+
+    VIM_MD,  // enter vim mode // layer 3
+    INS_MD,  // enter insert mode (or just regular mode) // layer 1
+
     M_UNDO,  // control + z
     NEXT_WD, // move to next word ('w' in vim)
     BACK_WD, // move back to the last word ('b' in vim)
-    DELN_WD, // delete next word ('dw' in vim) 
-    DELB_WD, // delete 
+
+    DY_N_WD, // delete/yank next word ('dw' in vim) 
+    DY_B_WD, // delete/yank back (last) word ('db' in vim)
+    DY_END,  // delete/yank until the end of line
+    DY_HOME, // delete/yank until the beginning of line
+    D_LINE,  // delete current line
+    Y_LINE,  // yank current line
+
+    UNEW_LN, // add a new line (up) above current line
+    NEW_LN,  // add a new line
+    V_PASTE, // paste in vim 
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -50,10 +63,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [1] = LAYOUT(
     RESET,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_HUD,  RGB_HUI,  RGB_RMOD, RGB_MOD,  _______,
-    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_HOME,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_SAD,  RGB_SAI,  _______,            KC_MNXT,
     _______,  KC_END,   _______,  _______,  _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      _______,  KC_MPRV,
     _______,  _______,  _______,  KC_DEL,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            KC_PGDN,  _______,
     _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  VDKTP_L,  KC_PGUP,  VDKTP_R
   ),
+
+  [2] = LAYOUT(
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,                      _______,  _______,
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,  _______,
+    _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  _______,  _______,  _______
+  ),
+
 };
