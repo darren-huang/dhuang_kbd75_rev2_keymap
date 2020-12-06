@@ -1,5 +1,14 @@
 #include QMK_KEYBOARD_H
 
+extern rgblight_config_t rgblight_config;
+bool VIM_d, VIM_y, VIM_shift = false;
+uint8_t RGB_enable;
+uint8_t RGB_mode;
+uint8_t RGB_hue;
+uint8_t RGB_sat;
+uint8_t RGB_val;
+uint8_t RGB_val_vim = 150;
+
 enum custom_keycodes {
     QMKBEST = SAFE_RANGE,
     VDKTP_R, // virtual deskptop right
@@ -8,7 +17,7 @@ enum custom_keycodes {
     TAB_L,   // move to the tab to the left (for chrome)
 
     VIM_MD,  // enter vim mode // layer 3
-    INS_MD,  // enter insert mode (or just regular mode) // layer 1
+    REG_MD,  // enter insert mode (or just regular mode) // layer 1
 
     M_UNDO,  // control + z
     NEXT_WD, // move to next word ('w' in vim)
@@ -46,6 +55,82 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         } else { // on release:
         }
         break;
+    case TAB_R:
+        if (record->event.pressed) { // on press
+            SEND_STRING(SS_LCTL(SS_TAP(X_TAB)));
+        } else { // on release:
+        }
+        break;
+    case TAB_L:
+        if (record->event.pressed) { // on press
+            SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_TAB))));
+        } else { // on release:
+        }
+        break;
+    case M_UNDO:
+        if (record->event.pressed) { // on press
+            SEND_STRING(SS_LCTL("z"));
+        } else { // on release:
+        }
+        break;
+	// vim/regular modes ------------------------------------------------
+    case VIM_MD:
+        if (record->event.pressed) { // on press
+            //save current rgb settings
+			RGB_enable = rgblight_config.enable;
+			RGB_mode = rgblight_config.mode;
+			RGB_hue = rgblight_config.hue;
+			RGB_sat = rgblight_config.sat;
+			RGB_val = rgblight_config.val;
+
+            //load vim rgb settings
+            rgblight_mode(RGBLIGHT_MODE_RAINBOW_SWIRL + 5);
+            rgblight_sethsv(RGB_hue, 255, 
+                            RGB_val > RGB_val_vim ? RGB_val : RGB_val_vim);
+            rgblight_enable();
+
+            //change layer
+            layer_on(2);
+        } else { // on release:
+        }
+        break;
+    case REG_MD:
+        if (record->event.pressed) { // on press
+            //load vim rgb settings
+            rgblight_mode(RGB_mode);
+            rgblight_sethsv(RGB_hue, RGB_sat, RGB_val);
+            if (!RGB_enable) {
+               rgblight_disable(); 
+            }
+        } else { // on release:
+            //change layer
+            layer_off(2);
+        }
+        break;
+    // vim commands ------------------------------------------------
+    case NEXT_WD:
+        if (record->event.pressed) { // on press
+            SEND_STRING(SS_LCTL(SS_TAP(X_RGHT)));
+        } else { // on release:
+        }
+        break;
+    case BACK_WD:
+        if (record->event.pressed) { // on press
+            SEND_STRING(SS_LCTL(SS_TAP(X_LEFT)));
+        } else { // on release:
+        }
+        break;
+
+    case NEW_LN:
+        if (record->event.pressed) { // on press
+            if (VIM_shift) {
+                SEND_STRING(SS_TAP(X_END) SS_LSFT(SS_TAP(X_ENT)));
+            } else {
+                SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_ENT)) SS_TAP(X_UP));
+            }
+        } else { // on release:
+        }
+        break;
     }
     return true;
 };
@@ -65,12 +150,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     RESET,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_HUD,  RGB_HUI,  RGB_RMOD, RGB_MOD,  _______,
     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_HOME,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_SAD,  RGB_SAI,  _______,            KC_MNXT,
-    _______,  KC_END,   _______,  _______,  _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      _______,  KC_MPRV,
+    VIM_MD,   KC_END,   _______,  _______,  _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      _______,  KC_MPRV,
     _______,  _______,  _______,  KC_DEL,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            KC_PGDN,  _______,
     _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  VDKTP_L,  KC_PGUP,  VDKTP_R
   ),
 
-  [2] = LAYOUT(
+  [2] = LAYOUT( // vim layer
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_HOME,  _______,  _______,  _______,  _______,  _______,
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  REG_MD,   _______,  _______,  _______,  _______,  _______,            _______,
+    REG_MD,   KC_END,   _______,  _______,  _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      _______,  _______,
+    _______,  _______,  _______,  KC_DEL,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,  _______,
+    _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  _______,  _______,  _______
+  ),
+
+  [3] = LAYOUT(
     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
