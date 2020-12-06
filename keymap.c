@@ -13,7 +13,21 @@ bool vim_shift(void) {
     return VIM_lshift || VIM_rshift;
 }
 
-void restore_original_rgb(void) {
+void reset_vim_vars(void) {
+    VIM_d, VIM_y, VIM_lshift, VIM_rshift = false;
+}
+
+void regular_mode_on(void) {
+    layer_off(2);
+    reset_vim_vars();
+}
+
+void vim_mode_on(void) {
+    layer_on(2);
+    reset_vim_vars();
+}
+
+void set_original_rgb(void) {
     //load regular rgb settings
     rgblight_mode(RGB_mode);
     rgblight_sethsv(RGB_hue, RGB_sat, RGB_val);
@@ -24,6 +38,37 @@ void restore_original_rgb(void) {
     }
 }
 
+void save_original_rgb(void) {
+    //save current rgb settings
+    RGB_enable = rgblight_config.enable;
+    RGB_mode = rgblight_config.mode;
+    RGB_hue = rgblight_config.hue;
+    RGB_sat = rgblight_config.sat;
+    RGB_val = rgblight_config.val;
+}
+
+void set_vim_rgb(void) {
+    //load vim rgb settings
+    rgblight_mode(RGBLIGHT_MODE_RAINBOW_SWIRL + 5);
+    rgblight_sethsv(RGB_hue, 255, 
+                    RGB_val > RGB_val_vim ? RGB_val : RGB_val_vim);
+    rgblight_enable();
+}
+
+void set_vim_d_rgb(void) {
+    //load vim d (delete) mode rgb settings
+    rgblight_mode(RGBLIGHT_MODE_SNAKE + 2);
+    rgblight_sethsv(HSV_RED);
+    rgblight_enable();
+}
+
+void set_vim_y_rgb(void) {
+    //load vim y (yank) mode rgb settings
+    rgblight_mode(RGBLIGHT_MODE_SNAKE + 3);
+    rgblight_sethsv(HSV_YELLOW);
+    rgblight_enable();
+}
+
 enum custom_keycodes {
     QMKBEST = SAFE_RANGE,
     VDKTP_R, // virtual deskptop right
@@ -32,6 +77,7 @@ enum custom_keycodes {
     TAB_L,   // move to the tab to the left (for chrome)
 
     VIM_MD,  // enter vim mode // layer 3
+    VIM_RST, // reset vim settings (for use only in the vim layer)
     REG_MD,  // enter insert mode (or just regular mode) // layer 1
     APPEND,  // append to insert mode (right arrow then regular mode)
     VIENTER, // vim enter (after pressing enter will go back to regular mode)
@@ -42,6 +88,8 @@ enum custom_keycodes {
     VI_RSHFT,// vim right shift
     VI_LSHFT,// vim left shift
 
+    VIM_D,   // vim d command (activates the delete commands)
+    VIM_Y,   // vim y command (activates the yank commands)
     DY_N_WD, // delete/yank next word ('dw' in vim) 
     DY_B_WD, // delete/yank back (last) word ('db' in vim)
     DY_END,  // delete/yank until the end of line
@@ -94,34 +142,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	// vim/regular modes ------------------------------------------------
     case VIM_MD:
         if (record->event.pressed) { // on press
-            //save current rgb settings
-			RGB_enable = rgblight_config.enable;
-			RGB_mode = rgblight_config.mode;
-			RGB_hue = rgblight_config.hue;
-			RGB_sat = rgblight_config.sat;
-			RGB_val = rgblight_config.val;
-
-            //load vim rgb settings
-            rgblight_mode(RGBLIGHT_MODE_RAINBOW_SWIRL + 5);
-            rgblight_sethsv(RGB_hue, 255, 
-                            RGB_val > RGB_val_vim ? RGB_val : RGB_val_vim);
-            rgblight_enable();
+            save_original_rgb(); // backup the current rgb settings
+            set_vim_rgb(); // set the vim rgb
         } else { // on release:
-            //change layer
-            layer_on(2);
+            vim_mode_on();
+        }
+        break;
+    case VIM_RST:
+        if (record->event.pressed) { // on press
+            set_vim_rgb(); // set the vim rgb
+        } else { // on release:
+            vim_mode_on();
         }
         break;
     case REG_MD:
         if (record->event.pressed) { // on press
-            restore_original_rgb();
+            set_original_rgb();
         } else { // on release:
             //change layer
-            layer_off(2);
+            regular_mode_on();
         }
         break;
     case APPEND:
         if (record->event.pressed) { // on press
-            restore_original_rgb();
+            set_original_rgb();
             if (vim_shift()) {
                 SEND_STRING(SS_TAP(X_END));
             } else {
@@ -129,16 +173,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
         } else { // on release:
             //change layer
-            layer_off(2);
+            regular_mode_on();
         }
         break;
     case VIENTER:
         if (record->event.pressed) { // on press
-            restore_original_rgb();
+            set_original_rgb();
             SEND_STRING(SS_TAP(X_ENTER));
         } else { // on release:
             //change layer
-            layer_off(2);
+            regular_mode_on();
         }
         break;
     case VI_RSHFT:
@@ -168,7 +212,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         } else { // on release:
         }
         break;
-
     case NEW_LN:
         if (record->event.pressed) { // on press
             if (vim_shift()) {
@@ -177,6 +220,27 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING(SS_TAP(X_END) SS_LSFT(SS_TAP(X_ENT)));
             }
         } else { // on release:
+        }
+        break;
+    // vim delete/yank commands:
+    case VIM_D:
+        if (record->event.pressed) { // on press
+            VIM_d= true;
+            VIM_y= false;
+            set_vim_d_rgb();
+            set_oneshot_layer(3, ONESHOT_START);
+        } else { // on release:
+            clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
+        }
+        break;
+    case VIM_Y:
+        if (record->event.pressed) { // on press
+            VIM_d= false;
+            VIM_y= true;
+            set_vim_y_rgb();
+            set_oneshot_layer(3, ONESHOT_START);
+        } else { // on release:
+            clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
         }
         break;
     }
@@ -197,17 +261,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [1] = LAYOUT(
     RESET,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_HUD,  RGB_HUI,  RGB_RMOD, RGB_MOD,  _______,
     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_HOME,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
-    _______,  _______,  NEXT_WD,  _______,  _______,  _______,  _______,  M_UNDO,   _______,  NEW_LN,   _______,  RGB_SAD,  RGB_SAI,  _______,            KC_MNXT,
+    KC_ENT,   _______,  NEXT_WD,  _______,  _______,  _______,  _______,  M_UNDO,   _______,  NEW_LN,   _______,  RGB_SAD,  RGB_SAI,  _______,            KC_MNXT,
     VIM_MD,   KC_END,   _______,  _______,  _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      _______,  KC_MPRV,
     _______,  _______,  _______,  KC_DEL,   _______,  _______,  BACK_WD,  _______,  _______,  TAB_L,    TAB_R,    _______,  _______,            KC_PGDN,  _______,
     _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  VDKTP_L,  KC_PGUP,  VDKTP_R
   ),
 
   [2] = LAYOUT( // vim layer
-    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
-    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_HOME,  _______,  _______,  _______,  _______,  _______,
-    _______,  _______,  NEXT_WD,  _______,  _______,  _______,  _______,  M_UNDO,   REG_MD,   NEW_LN,   _______,  _______,  _______,  _______,            _______,
-    REG_MD,   APPEND,   _______,  _______,  _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      VIENTER,  _______,
+    REG_MD,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
+    REG_MD,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_HOME,  _______,  _______,  _______,  _______,  _______,
+    REG_MD,   _______,  NEXT_WD,  _______,  _______,  _______,  _______,  M_UNDO,   REG_MD,   NEW_LN,   _______,  _______,  _______,  _______,            _______,
+    VIM_RST,  APPEND,   _______,  _______,  _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      VIENTER,  _______,
     VI_LSHFT, _______,  _______,  KC_DEL,   _______,  _______,  BACK_WD,  _______,  _______,  _______,  _______,  _______,  VI_RSHFT,           _______,  _______,
     _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  _______,  _______,  _______
   ),
