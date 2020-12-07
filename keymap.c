@@ -2,11 +2,8 @@
 
 extern rgblight_config_t rgblight_config;
 bool VIM_d, VIM_y, VIM_lshift, VIM_rshift = false;
-uint8_t RGB_enable;
-uint8_t RGB_mode;
-uint8_t RGB_hue;
-uint8_t RGB_sat;
-uint8_t RGB_val;
+uint8_t RGB_enable, RGB_mode, RGB_hue, RGB_sat, RGB_val;
+uint8_t dy_RGB_enable, dy_RGB_mode, dy_RGB_hue, dy_RGB_sat, dy_RGB_val; // for d / y vim modes
 uint8_t RGB_val_vim = 150;
 
 bool vim_shift(void) {
@@ -27,6 +24,33 @@ void vim_mode_on(void) {
     reset_vim_vars();
 }
 
+void dy_vim_mode_off(void) {
+    reset_oneshot_layer();
+    VIM_d, VIM_y = false;
+}
+
+// saving RGB settings  ----------------------
+
+void save_original_rgb(void) {
+    //save current rgb settings
+    RGB_enable = rgblight_config.enable;
+    RGB_mode = rgblight_config.mode;
+    RGB_hue = rgblight_config.hue;
+    RGB_sat = rgblight_config.sat;
+    RGB_val = rgblight_config.val;
+}
+
+void save_dy_mode_rgb(void) {
+    //save current rgb settings
+    dy_RGB_enable = rgblight_config.enable;
+    dy_RGB_mode = rgblight_config.mode;
+    dy_RGB_hue = rgblight_config.hue;
+    dy_RGB_sat = rgblight_config.sat;
+    dy_RGB_val = rgblight_config.val;
+}
+
+// modifying RGB settings  ----------------------
+
 void set_original_rgb(void) {
     //load regular rgb settings
     rgblight_mode(RGB_mode);
@@ -38,13 +62,15 @@ void set_original_rgb(void) {
     }
 }
 
-void save_original_rgb(void) {
-    //save current rgb settings
-    RGB_enable = rgblight_config.enable;
-    RGB_mode = rgblight_config.mode;
-    RGB_hue = rgblight_config.hue;
-    RGB_sat = rgblight_config.sat;
-    RGB_val = rgblight_config.val;
+void set_dy_mode_rgb(void) {
+    //load rgb settings from before entering d / y vim modes
+    rgblight_mode(dy_RGB_mode);
+    rgblight_sethsv(dy_RGB_hue, dy_RGB_sat, dy_RGB_val);
+    if (dy_RGB_enable) {
+       rgblight_enable(); 
+    } else {
+       rgblight_disable(); 
+    }
 }
 
 void set_vim_rgb(void) {
@@ -68,6 +94,8 @@ void set_vim_y_rgb(void) {
     rgblight_sethsv(HSV_YELLOW);
     rgblight_enable();
 }
+
+// keycodes ---------------------------------------------------------
 
 enum custom_keycodes {
     QMKBEST = SAFE_RANGE,
@@ -227,7 +255,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (record->event.pressed) { // on press
             VIM_d= true;
             VIM_y= false;
+
+            // rgb settings
+            save_dy_mode_rgb();
             set_vim_d_rgb();
+
             set_oneshot_layer(3, ONESHOT_START);
         } else { // on release:
             clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
@@ -237,10 +269,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (record->event.pressed) { // on press
             VIM_d= false;
             VIM_y= true;
+
+            // rgb settings
+            save_dy_mode_rgb();
             set_vim_y_rgb();
+
             set_oneshot_layer(3, ONESHOT_START);
         } else { // on release:
             clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
+        }
+        break;
+    case DY_N_WD:
+        if (record->event.pressed) { // on press
+            VIM_d= false;
+            VIM_y= true;
+
+            // rgb settings
+            save_dy_mode_rgb();
+            set_vim_y_rgb();
+        } else { // on release:
+            dy_vim_mode_off();
         }
         break;
     }
