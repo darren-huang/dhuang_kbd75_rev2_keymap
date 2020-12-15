@@ -2,6 +2,7 @@
 
 // Define Types
 enum Keyboard_Mode {Regular_Mode, Vim_Mode, Y_Mode, D_Mode} KB_mode = Regular_Mode;
+Keyboard_Mode dy_mode_prev_mode = Regular_Mode;
 
 // Global Vars
 extern rgblight_config_t rgblight_config;
@@ -257,8 +258,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // vim delete/yank commands: -----------------------------------------
     case VIM_D:
         if (record->event.pressed) { // on press
-            VIM_d= true;
-            VIM_y= false;
+            KB_mode = D_Mode;
 
             // rgb settings
             save_rgb(dy_mode_prev_rgb);
@@ -271,11 +271,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
     case VIM_Y:
         if (record->event.pressed) { // on press
-            VIM_d= false;
-            VIM_y= true;
+            KB_mode = Y_Mode;
 
             // rgb settings
-            save_dy_mode_rgb();
+            save_rgb(dy_mode_prev_rgb);
             set_vim_y_rgb();
 
             set_oneshot_layer(3, ONESHOT_START);
