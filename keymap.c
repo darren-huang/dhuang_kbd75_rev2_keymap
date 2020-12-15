@@ -1,53 +1,57 @@
 #include QMK_KEYBOARD_H
 
+// Define Types
+enum Keyboard_Mode {Regular_Mode, Vim_Mode, Y_Mode, D_Mode} KB_mode = Regular_Mode;
+
+// Global Vars
 extern rgblight_config_t rgblight_config;
-bool VIM_d, VIM_y, VIM_lshift, VIM_rshift = false;
+bool VIM_lshift, VIM_rshift = false;
+rgblight_config_t vim_mode_prev_rgb, dy_mode_prev_rgb;
 uint8_t RGB_enable, RGB_mode, RGB_hue, RGB_sat, RGB_val;
 uint8_t dy_RGB_enable, dy_RGB_mode, dy_RGB_hue, dy_RGB_sat, dy_RGB_val; // for d / y vim modes
 uint8_t RGB_val_vim = 150;
+
+
 
 bool vim_shift(void) {
     return VIM_lshift || VIM_rshift;
 }
 
 void reset_vim_vars(void) {
-    VIM_d, VIM_y, VIM_lshift, VIM_rshift = false;
+    VIM_lshift, VIM_rshift = false;
 }
 
 void regular_mode_on(void) {
+    KB_mode = Regular_Mode;
     layer_off(2);
     reset_vim_vars();
 }
 
 void vim_mode_on(void) {
+    KB_mode = Vim_Mode;
     layer_on(2);
     reset_vim_vars();
 }
 
-void dy_vim_mode_off(void) {
+void dy_vim_mode_off(Keyboard_Mode mode) {
+    KB_Mode = mode;
     reset_oneshot_layer();
-    VIM_d, VIM_y = false;
 }
 
 // saving RGB settings  ----------------------
 
-void save_original_rgb(void) {
+void save_rgb(rgblight_config_t config) {
     //save current rgb settings
-    RGB_enable = rgblight_config.enable;
-    RGB_mode = rgblight_config.mode;
-    RGB_hue = rgblight_config.hue;
-    RGB_sat = rgblight_config.sat;
-    RGB_val = rgblight_config.val;
-}
+    config.enable = rgblight_config.enable;
+    config.mode   = rgblight_config.mode;
+    config.hue    = rgblight_config.hue;
+    config.sat    = rgblight_config.sat;
+    config.val    = rgblight_config.val;
+} 
 
-void save_dy_mode_rgb(void) {
-    //save current rgb settings
-    dy_RGB_enable = rgblight_config.enable;
-    dy_RGB_mode = rgblight_config.mode;
-    dy_RGB_hue = rgblight_config.hue;
-    dy_RGB_sat = rgblight_config.sat;
-    dy_RGB_val = rgblight_config.val;
-}
+void save_original_rgb(void) {}
+
+void save_dy_mode_rgb(void) {}
 
 // modifying RGB settings  ----------------------
 
@@ -170,7 +174,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	// vim/regular modes ------------------------------------------------
     case VIM_MD:
         if (record->event.pressed) { // on press
-            save_original_rgb(); // backup the current rgb settings
+            save_rgb(vim_mode_prev_rgb); // backup the current rgb settings
             set_vim_rgb(); // set the vim rgb
         } else { // on release:
             vim_mode_on();
@@ -250,14 +254,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         } else { // on release:
         }
         break;
-    // vim delete/yank commands:
+    // vim delete/yank commands: -----------------------------------------
     case VIM_D:
         if (record->event.pressed) { // on press
             VIM_d= true;
             VIM_y= false;
 
             // rgb settings
-            save_dy_mode_rgb();
+            save_rgb(dy_mode_prev_rgb);
             set_vim_d_rgb();
 
             set_oneshot_layer(3, ONESHOT_START);
@@ -281,12 +285,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
     case DY_N_WD:
         if (record->event.pressed) { // on press
-            VIM_d= false;
-            VIM_y= true;
-
-            // rgb settings
-            save_dy_mode_rgb();
-            set_vim_y_rgb();
+            if (VIM_d && !VIM_y) 
+            SEND_STRING(SS_TAP(X_END));
+            set_dy_mode_rgb();
         } else { // on release:
             dy_vim_mode_off();
         }
