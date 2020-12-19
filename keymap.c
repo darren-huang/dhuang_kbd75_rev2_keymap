@@ -121,6 +121,7 @@ enum custom_keycodes {
     DY_HOME, // delete/yank until the beginning of line
     D_LINE,  // delete current line
     Y_LINE,  // yank current line
+    DY_UNSET,// Unset the DY mode (restore old rgb and mode values & OSL)
 
     NEW_LN,  // add a new line
     V_PASTE, // paste in vim 
@@ -383,13 +384,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  _______,  _______,  _______
   ),
 
-  [3] = LAYOUT(
-    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
-    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
-    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,                      _______,  _______,
-    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,  _______,
-    _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  _______,  _______,  _______
+  [3] = LAYOUT( // delete / yank mode layer
+    DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, 
+    DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, 
+    DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET,           DY_UNSET, 
+    DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET,                     DY_UNSET, DY_UNSET, 
+    DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET,           DY_UNSET, DY_UNSET, 
+    DY_UNSET, DY_UNSET, DY_UNSET,                     DY_UNSET, DY_UNSET, DY_UNSET,                     DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET 
   ),
 
 };
