@@ -270,11 +270,38 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
         }
         break;
+    // vim delete/yank commands: -----------------------------------------
     case DY_N_WD:
         if (record->event.pressed) { // on press
-            if (VIM_d && !VIM_y) 
-            SEND_STRING(SS_TAP(X_END));
-            set_dy_mode_rgb();
+            if (KB_mode  == D_Mode) {
+                SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT))) SS_TAP(X_CUT));
+            } else if (KB_mode == Y_Mode) {
+                SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT))) SS_TAP(X_COPY));
+            }
+            load_rgb(dy_mode_prev_rgb);
+        } else { // on release:
+            dy_vim_mode_off();
+        }
+        break;
+    case DY_B_WD:
+        if (record->event.pressed) { // on press
+            if (KB_mode  == D_Mode) {
+                SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_LEFT))) SS_TAP(X_CUT));
+            } else if (KB_mode == Y_Mode) {
+                SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_LEFT))) SS_TAP(X_COPY));
+            }
+            load_rgb(dy_mode_prev_rgb);
+        } else { // on release:
+            dy_vim_mode_off();
+        }
+        break;
+    case DY_END:
+        if (record->event.pressed) { // on press
+            if (KB_mode  == D_Mode) {
+                SEND_STRING(SS_LSFT(SS_TAP(X_END))) SS_TAP(X_BSPC);
+            } else if (KB_mode == Y_Mode) {
+            }
+            load_rgb(dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
         }
