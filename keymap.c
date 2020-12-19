@@ -2,16 +2,16 @@
 
 // Define Types
 enum Keyboard_Mode {Regular_Mode, Vim_Mode, Y_Mode, D_Mode} KB_mode = Regular_Mode;
-Keyboard_Mode dy_mode_prev_mode = Regular_Mode;
+typedef enum Keyboard_Mode Keyboard_Mode;
 
 // Global Vars
-extern rgblight_config_t rgblight_config;
-bool VIM_lshift, VIM_rshift = false;
-rgblight_config_t vim_mode_prev_rgb, dy_mode_prev_rgb;
-uint8_t RGB_enable, RGB_mode, RGB_hue, RGB_sat, RGB_val;
-uint8_t dy_RGB_enable, dy_RGB_mode, dy_RGB_hue, dy_RGB_sat, dy_RGB_val; // for d / y vim modes
-uint8_t RGB_val_vim = 150;
+Keyboard_Mode dy_mode_prev_mode = Regular_Mode;
 
+extern rgblight_config_t rgblight_config;
+rgblight_config_t vim_mode_prev_rgb, dy_mode_prev_rgb;
+
+bool VIM_lshift, VIM_rshift = false;
+uint8_t RGB_val_vim = 150;
 
 
 bool vim_shift(void) {
@@ -19,7 +19,8 @@ bool vim_shift(void) {
 }
 
 void reset_vim_vars(void) {
-    VIM_lshift, VIM_rshift = false;
+    VIM_lshift = false;
+    VIM_rshift = false;
 }
 
 void regular_mode_on(void) {
@@ -34,8 +35,14 @@ void vim_mode_on(void) {
     reset_vim_vars();
 }
 
-void dy_vim_mode_off(Keyboard_Mode mode) {
+void dy_vim_mode_on(Keyboard_Mode mode) {
+    dy_mode_prev_mode = KB_Mode;
     KB_Mode = mode;
+    set_oneshot_layer(3, ONESHOT_START);
+}
+
+void dy_vim_mode_off() {
+    KB_Mode = dy_mode_prev_mode;
     reset_oneshot_layer();
 }
 
@@ -50,28 +57,11 @@ void save_rgb(rgblight_config_t config) {
     config.val    = rgblight_config.val;
 } 
 
-void save_original_rgb(void) {}
-
-void save_dy_mode_rgb(void) {}
-
 // modifying RGB settings  ----------------------
 
-void set_original_rgb(void) {
-    //load regular rgb settings
-    rgblight_mode(RGB_mode);
-    rgblight_sethsv(RGB_hue, RGB_sat, RGB_val);
-    if (RGB_enable) {
-       rgblight_enable(); 
-    } else {
-       rgblight_disable(); 
-    }
-}
-
-void set_dy_mode_rgb(void) {
-    //load rgb settings from before entering d / y vim modes
-    rgblight_mode(dy_RGB_mode);
-    rgblight_sethsv(dy_RGB_hue, dy_RGB_sat, dy_RGB_val);
-    if (dy_RGB_enable) {
+void load_rgb(rgblight_config_t config) {
+    rgblight_sethsv(config.hue, config.sat, config.val);
+    if (config.enable) {
        rgblight_enable(); 
     } else {
        rgblight_disable(); 
@@ -190,7 +180,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
     case REG_MD:
         if (record->event.pressed) { // on press
-            set_original_rgb();
+            load_rgb(vim_mode_prev_rgb);
         } else { // on release:
             //change layer
             regular_mode_on();
@@ -198,7 +188,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
     case APPEND:
         if (record->event.pressed) { // on press
-            set_original_rgb();
+            load_rgb(vim_mode_prev_rgb);
             if (vim_shift()) {
                 SEND_STRING(SS_TAP(X_END));
             } else {
@@ -211,7 +201,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
     case VIENTER:
         if (record->event.pressed) { // on press
-            set_original_rgb();
+            load_rgb(vim_mode_prev_rgb);
             SEND_STRING(SS_TAP(X_ENTER));
         } else { // on release:
             //change layer
@@ -258,26 +248,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // vim delete/yank commands: -----------------------------------------
     case VIM_D:
         if (record->event.pressed) { // on press
-            KB_mode = D_Mode;
-
             // rgb settings
             save_rgb(dy_mode_prev_rgb);
             set_vim_d_rgb();
 
-            set_oneshot_layer(3, ONESHOT_START);
+            // turn mode on
+            dy_vim_mode_on(D_Mode);
         } else { // on release:
             clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
         }
         break;
     case VIM_Y:
         if (record->event.pressed) { // on press
-            KB_mode = Y_Mode;
-
             // rgb settings
             save_rgb(dy_mode_prev_rgb);
             set_vim_y_rgb();
 
-            set_oneshot_layer(3, ONESHOT_START);
+            // turn mode on
+            dy_vim_mode_on(Y_Mode);
         } else { // on release:
             clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
         }
