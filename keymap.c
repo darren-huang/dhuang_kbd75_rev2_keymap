@@ -10,7 +10,9 @@ Keyboard_Mode dy_mode_prev_mode = Regular_Mode;
 extern rgblight_config_t rgblight_config;
 rgblight_config_t vim_mode_prev_rgb, dy_mode_prev_rgb;
 
-bool VIM_lshift, VIM_rshift = false;
+bool VIM_lshift = false;
+bool VIM_rshift = false;
+bool clipboard_holds_line = false;
 uint8_t RGB_val_vim = 150;
 
 
@@ -276,7 +278,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (KB_mode  == D_Mode) {
                 SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT))) SS_TAP(X_CUT));
             } else if (KB_mode == Y_Mode) {
-                SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT))) SS_TAP(X_COPY));
+                SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT))) SS_TAP(X_COPY) SS_TAP(X_LEFT));
             }
             load_rgb(dy_mode_prev_rgb);
         } else { // on release:
@@ -288,7 +290,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (KB_mode  == D_Mode) {
                 SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_LEFT))) SS_TAP(X_CUT));
             } else if (KB_mode == Y_Mode) {
-                SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_LEFT))) SS_TAP(X_COPY));
+                SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_LEFT))) SS_TAP(X_COPY) SS_TAP(X_RIGHT));
             }
             load_rgb(dy_mode_prev_rgb);
         } else { // on release:
@@ -298,9 +300,51 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case DY_END:
         if (record->event.pressed) { // on press
             if (KB_mode  == D_Mode) {
-                SEND_STRING(SS_LSFT(SS_TAP(X_END))) SS_TAP(X_BSPC);
+                SEND_STRING(SS_LSFT(SS_TAP(X_END)) SS_TAP(X_CUT));
             } else if (KB_mode == Y_Mode) {
+                SEND_STRING(SS_LSFT(SS_TAP(X_END)) SS_TAP(X_COPY) SS_TAP(X_LEFT));
             }
+            load_rgb(dy_mode_prev_rgb);
+        } else { // on release:
+            dy_vim_mode_off();
+        }
+        break;
+    case DY_HOME:
+        if (record->event.pressed) { // on press
+            if (KB_mode  == D_Mode) {
+                SEND_STRING(SS_LSFT(SS_TAP(X_HOME)) SS_TAP(X_CUT));
+            } else if (KB_mode == Y_Mode) {
+                SEND_STRING(SS_LSFT(SS_TAP(X_HOME)) SS_TAP(X_COPY) SS_TAP(X_RIGHT));
+            }
+            load_rgb(dy_mode_prev_rgb);
+        } else { // on release:
+            dy_vim_mode_off();
+        }
+        break;
+    case D_LINE:
+        if (record->event.pressed) { // on press
+            if (KB_mode  == D_Mode) {
+                SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)) SS_TAP(X_CUT));
+                clipboard_holds_line = true;
+            }
+            load_rgb(dy_mode_prev_rgb);
+        } else { // on release:
+            dy_vim_mode_off();
+        }
+        break;
+    case Y_LINE:
+        if (record->event.pressed) { // on press
+            if (KB_mode  == Y_Mode) {
+                SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)) SS_TAP(X_CUT));
+                clipboard_holds_line = true;
+            }
+            load_rgb(dy_mode_prev_rgb);
+        } else { // on release:
+            dy_vim_mode_off();
+        }
+        break;
+    case DY_UNSET:
+        if (record->event.pressed) { // on press
             load_rgb(dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
@@ -330,7 +374,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  VDKTP_L,  KC_PGUP,  VDKTP_R
   ),
 
-  [2] = LAYOUT( // vim layer
+  [2] = LAYOUT( // vim mode layer
     REG_MD,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
     REG_MD,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_HOME,  _______,  _______,  _______,  _______,  _______,
     REG_MD,   _______,  NEXT_WD,  _______,  _______,  _______,  _______,  M_UNDO,   REG_MD,   NEW_LN,   _______,  _______,  _______,  _______,            _______,
