@@ -36,13 +36,13 @@ void vim_mode_on(void) {
 }
 
 void dy_vim_mode_on(Keyboard_Mode mode) {
-    dy_mode_prev_mode = KB_Mode;
-    KB_Mode = mode;
+    dy_mode_prev_mode = KB_mode;
+    KB_mode = mode;
     set_oneshot_layer(3, ONESHOT_START);
 }
 
 void dy_vim_mode_off() {
-    KB_Mode = dy_mode_prev_mode;
+    KB_mode = dy_mode_prev_mode;
     reset_oneshot_layer();
 }
 
@@ -71,8 +71,8 @@ void load_rgb(rgblight_config_t config) {
 void set_vim_rgb(void) {
     //load vim rgb settings
     rgblight_mode(RGBLIGHT_MODE_RAINBOW_SWIRL + 5);
-    rgblight_sethsv(RGB_hue, 255, 
-                    RGB_val > RGB_val_vim ? RGB_val : RGB_val_vim);
+    rgblight_sethsv(rgblight_config.hue, 255,
+                    rgblight_config.val > RGB_val_vim ? rgblight_config.val : RGB_val_vim);
     rgblight_enable();
 }
 
