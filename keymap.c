@@ -281,6 +281,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             } else if (KB_mode == Y_Mode) {
                 SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT))) SS_TAP(X_COPY) SS_TAP(X_LEFT));
             }
+            clipboard_holds_line = false;
             load_rgb(dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
@@ -293,6 +294,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             } else if (KB_mode == Y_Mode) {
                 SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_LEFT))) SS_TAP(X_COPY) SS_TAP(X_RIGHT));
             }
+            clipboard_holds_line = false;
             load_rgb(dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
@@ -305,6 +307,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             } else if (KB_mode == Y_Mode) {
                 SEND_STRING(SS_LSFT(SS_TAP(X_END)) SS_TAP(X_COPY) SS_TAP(X_LEFT));
             }
+            clipboard_holds_line = false;
             load_rgb(dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
@@ -317,6 +320,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             } else if (KB_mode == Y_Mode) {
                 SEND_STRING(SS_LSFT(SS_TAP(X_HOME)) SS_TAP(X_COPY) SS_TAP(X_RIGHT));
             }
+            clipboard_holds_line = false;
             load_rgb(dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
@@ -349,6 +353,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             load_rgb(dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
+        }
+        break;
+	// shift dependent commands -----------------------------------------------
+    case NEW_LN:
+        if (record->event.pressed) { // on press
+            if (vim_shift()) {
+                SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_ENTER)) SS_TAP(X_UP));
+            } else {
+                SEND_STRING(SS_TAP(X_END) SS_LSFT(SS_TAP(X_ENTER)));
+            }
+        } else { // on release:
+        }
+        break;
+    case V_PASTE:
+        if (record->event.pressed) { // on press
+            if (clipboard_holds_line) {
+                if (vim_shift()) {
+                } else {
+                }
+            } else { // regular paste
+                if (vim_shift()) {
+                } else {
+                }
+            }
+        } else { // on release:
         }
         break;
     }
