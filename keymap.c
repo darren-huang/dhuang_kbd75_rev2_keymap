@@ -59,20 +59,20 @@ void dy_vim_mode_off(void) {
 
 // saving RGB settings  ----------------------
 
-void save_rgb(rgblight_config_t config) {
+void save_rgb(rgblight_config_t* config) {
     //save current rgb settings
-    config.enable = rgblight_config.enable;
-    config.mode   = rgblight_config.mode;
-    config.hue    = rgblight_config.hue;
-    config.sat    = rgblight_config.sat;
-    config.val    = rgblight_config.val;
+    config->enable = rgblight_config.enable;
+    config->mode   = rgblight_config.mode;
+    config->hue    = rgblight_config.hue;
+    config->sat    = rgblight_config.sat;
+    config->val    = rgblight_config.val;
 } 
 
 // modifying RGB settings  ----------------------
 
-void load_rgb(rgblight_config_t config) {
-    rgblight_sethsv(config.hue, config.sat, config.val);
-    if (config.enable) {
+void load_rgb(rgblight_config_t* config) {
+    rgblight_sethsv(config->hue, config->sat, config->val);
+    if (config->enable) {
        rgblight_enable(); 
     } else {
        rgblight_disable(); 
@@ -198,7 +198,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	// vim/regular modes ------------------------------------------------
     case VIM_MD:
         if (record->event.pressed) { // on press
-            save_rgb(vim_mode_prev_rgb); // backup the current rgb settings
+            save_rgb(&vim_mode_prev_rgb); // backup the current rgb settings
             set_vim_rgb(); // set the vim rgb
         } else { // on release:
             vim_mode_on();
@@ -213,7 +213,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
     case REG_MD:
         if (record->event.pressed) { // on press
-            load_rgb(vim_mode_prev_rgb);
+            load_rgb(&vim_mode_prev_rgb);
         } else { // on release:
             //change layer
             regular_mode_on();
@@ -221,7 +221,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
     case APPEND:
         if (record->event.pressed) { // on press
-            load_rgb(vim_mode_prev_rgb);
+            load_rgb(&vim_mode_prev_rgb);
             if (vim_shift()) {
                 SEND_STRING(SS_TAP(X_END));
             } else {
@@ -234,7 +234,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
     case VIENTER:
         if (record->event.pressed) { // on press
-            load_rgb(vim_mode_prev_rgb);
+            load_rgb(&vim_mode_prev_rgb);
             SEND_STRING(SS_TAP(X_ENTER));
         } else { // on release:
             //change layer
@@ -272,7 +272,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case VIM_D:
         if (record->event.pressed) { // on press
             // rgb settings
-            save_rgb(dy_mode_prev_rgb);
+            save_rgb(&dy_mode_prev_rgb);
             set_vim_d_rgb();
 
             // turn mode on
@@ -284,7 +284,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case VIM_Y:
         if (record->event.pressed) { // on press
             // rgb settings
-            save_rgb(dy_mode_prev_rgb);
+            save_rgb(&dy_mode_prev_rgb);
             set_vim_y_rgb();
 
             // turn mode on
@@ -302,7 +302,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_RIGHT))) SS_TAP(X_COPY) SS_TAP(X_LEFT));
             }
             clipboard_holds_line = false;
-            load_rgb(dy_mode_prev_rgb);
+            load_rgb(&dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
         }
@@ -315,7 +315,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_LEFT))) SS_TAP(X_COPY) SS_TAP(X_RIGHT));
             }
             clipboard_holds_line = false;
-            load_rgb(dy_mode_prev_rgb);
+            load_rgb(&dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
         }
@@ -328,7 +328,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING(SS_LSFT(SS_TAP(X_END)) SS_TAP(X_COPY) SS_TAP(X_LEFT));
             }
             clipboard_holds_line = false;
-            load_rgb(dy_mode_prev_rgb);
+            load_rgb(&dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
         }
@@ -341,7 +341,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING(SS_LSFT(SS_TAP(X_HOME)) SS_TAP(X_COPY) SS_TAP(X_RIGHT));
             }
             clipboard_holds_line = false;
-            load_rgb(dy_mode_prev_rgb);
+            load_rgb(&dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
         }
@@ -352,7 +352,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)) SS_TAP(X_CUT) SS_LSFT(SS_TAP(X_UP) SS_TAP(X_END)) SS_TAP(X_BSPC));
                 clipboard_holds_line = true;
             }
-            load_rgb(dy_mode_prev_rgb);
+            load_rgb(&dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
         }
@@ -363,14 +363,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)) SS_TAP(X_CUT));
                 clipboard_holds_line = true;
             }
-            load_rgb(dy_mode_prev_rgb);
+            load_rgb(&dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
         }
         break;
     case DY_UNSET:
         if (record->event.pressed) { // on press
-            load_rgb(dy_mode_prev_rgb);
+            load_rgb(&dy_mode_prev_rgb);
         } else { // on release:
             dy_vim_mode_off();
         }
