@@ -52,7 +52,7 @@ void dy_vim_mode_on(Keyboard_Mode mode) {
     set_oneshot_layer(3, ONESHOT_START);
 }
 
-void dy_vim_mode_off() {
+void dy_vim_mode_off(void) {
     KB_mode = dy_mode_prev_mode;
     reset_oneshot_layer();
 }
