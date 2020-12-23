@@ -447,30 +447,30 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_LCTL,  KC_LGUI,  KC_LALT,                      KC_SPC,   KC_SPC,   KC_SPC,                       KC_RALT,  MO(1),    MO(1),    KC_LEFT,  KC_DOWN,  KC_RGHT
   ),
 
-  [1] = LAYOUT(
-    RESET,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_HUD,  RGB_HUI,  RGB_RMOD, RGB_MOD,  _______,
-    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_HOME,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
-    KC_ENT,   _______,  NEXT_WD,  KC_ENT,   _______,  _______,  _______,  M_UNDO,   _______,  NEW_LN,   _______,  RGB_SAD,  RGB_SAI,  _______,            KC_MNXT,
-    VIM_MD,   KC_END,   _______,  _______,  _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      _______,  KC_MPRV,
-    _______,  _______,  _______,  KC_DEL,   _______,  _______,  BACK_WD,  _______,  _______,  TAB_L,    TAB_R,    _______,  _______,            KC_PGDN,  _______,
-    _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  VDKTP_L,  KC_PGUP,  VDKTP_R
+  [1] = LAYOUT( // function layer
+    RESET,    PRESET1,  PRESET2,  PRESET3,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_HUD,  RGB_HUI,  RGB_RMOD, RGB_MOD,  _______,
+    _______,  X(D_FC),  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_HOME,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
+    KC_ENT,   _______,  NEXT_WD,  KC_ENT,   _______,  _______,  VIM_Y,    M_UNDO,   _______,  NEW_LN,   V_PASTE,  RGB_SAD,  RGB_SAI,  _______,            KC_MNXT,
+    VIM_MD,   KC_END,   _______,  VIM_D,    _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      _______,  KC_MPRV,
+    VI_LSHFT, _______,  KC_BSPC,  KC_DEL,   _______,  _______,  BACK_WD,  _______,  _______,  TAB_L,    TAB_R,    _______,  VI_RSHFT,           KC_PGUP,  _______,
+    _______,  _______,  _______,                      KC_ENT,   KC_ENT,   KC_ENT,                       _______,  _______,  _______,  VDKTP_L,  KC_PGDN,  VDKTP_R
   ),
 
   [2] = LAYOUT( // vim mode layer
     REG_MD,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
     REG_MD,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_HOME,  _______,  _______,  _______,  _______,  _______,
-    REG_MD,   _______,  NEXT_WD,  _______,  _______,  _______,  _______,  M_UNDO,   REG_MD,   NEW_LN,   _______,  _______,  _______,  _______,            _______,
-    VIM_RST,  APPEND,   _______,  _______,  _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      VIENTER,  _______,
+    REG_MD,   _______,  NEXT_WD,  _______,  _______,  _______,  VIM_Y,    M_UNDO,   REG_MD,   NEW_LN,   V_PASTE,  _______,  _______,  _______,            _______,
+    VIM_RST,  APPEND,   _______,  VIM_D,    _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      VIENTER,  _______,
     VI_LSHFT, _______,  _______,  KC_DEL,   _______,  _______,  BACK_WD,  _______,  _______,  _______,  _______,  _______,  VI_RSHFT,           _______,  _______,
     _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  _______,  _______,  _______
   ),
 
   [3] = LAYOUT( // delete / yank mode layer
     DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, 
-    DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, 
-    DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET,           DY_UNSET, 
-    DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET,                     DY_UNSET, DY_UNSET, 
-    DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET,           DY_UNSET, DY_UNSET, 
+    DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_END,   DY_UNSET, DY_HOME,  DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, 
+    DY_UNSET, DY_UNSET, DY_N_WD,  DY_UNSET, DY_UNSET, DY_UNSET, Y_LINE,   DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET,           DY_UNSET, 
+    DY_UNSET, DY_UNSET, DY_UNSET, D_LINE,   DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET,                     DY_UNSET, DY_UNSET, 
+    DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_B_WD,  DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET,           DY_UNSET, DY_UNSET, 
     DY_UNSET, DY_UNSET, DY_UNSET,                     DY_UNSET, DY_UNSET, DY_UNSET,                     DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET 
   ),
 
