@@ -72,6 +72,7 @@ void save_rgb(rgblight_config_t* config) {
 // modifying RGB settings  ----------------------
 
 void load_rgb(rgblight_config_t* config) {
+    rgblight_mode(config->mode);
     rgblight_sethsv(config->hue, config->sat, config->val);
     if (config->enable) {
        rgblight_enable(); 
