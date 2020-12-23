@@ -92,6 +92,23 @@ void set_vim_y_rgb(void) {
     rgblight_enable();
 }
 
+void set_rgb_preset(int preset) {
+    rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
+    rgblight_enable();
+    switch (preset) {
+    case 1:
+        rgblight_sethsv(HSV_WHITE);
+        break;
+    case 2:
+        rgblight_sethsv(HSV_RED);
+        break;
+    case 3:
+        rgblight_setrgb(189, 147, 249);
+        break;
+    }
+}
+
+
 // keycodes ---------------------------------------------------------
 
 enum custom_keycodes {
@@ -125,6 +142,10 @@ enum custom_keycodes {
 
     NEW_LN,  // add a new line
     V_PASTE, // paste in vim 
+
+    PRESET1, // turn on 1st rgb preset
+    PRESET2, // turn on 1st rgb preset
+    PRESET3, // turn on 1st rgb preset
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -381,6 +402,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     SEND_STRING(SS_TAP(X_RIGHT) SS_TAP(X_PASTE));
                 }
             }
+        } else { // on release:
+        }
+        break;
+    case PRESET1:
+        if (record->event.pressed) { // on press
+            set_rgb_preset(1);
+        } else { // on release:
+        }
+        break;
+    case PRESET1:
+        if (record->event.pressed) { // on press
+            set_rgb_preset(2);
+        } else { // on release:
+        }
+        break;
+    case PRESET1:
+        if (record->event.pressed) { // on press
+            set_rgb_preset(3);
         } else { // on release:
         }
         break;
