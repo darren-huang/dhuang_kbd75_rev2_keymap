@@ -6,11 +6,17 @@ typedef enum Keyboard_Mode Keyboard_Mode;
 
 // Define Emoji Map
 enum unicode_names {
-    D_FC
+    D_FC,
+    BANG,
+    IRONY,
+    SNEK
 };
 
 const uint32_t PROGMEM unicode_map[] = {
     [D_FC]  = 0x1F978,  // Disguised Face Emoji
+    [BANG]  = 0x203D,  // ‽
+    [IRONY] = 0x2E2E,  // ⸮
+    [SNEK]  = 0x1F40D, // 🐍
 };
 
 // Global Vars
@@ -351,7 +357,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case D_LINE:
         if (record->event.pressed) { // on press
             if (KB_mode  == D_Mode) {
-                SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)) SS_LCTL("x") SS_LSFT(SS_TAP(X_UP) SS_TAP(X_END)) SS_TAP(X_BSPC));
+                SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)) SS_LCTL("x") SS_LSFT(SS_TAP(X_DOWN) SS_TAP(X_HOME)) SS_TAP(X_BSPC));
                 clipboard_holds_line = true;
             }
             load_rgb(&dy_mode_prev_rgb);
@@ -441,7 +447,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [1] = LAYOUT( // function layer
     RESET,    PRESET1,  PRESET2,  PRESET3,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_HUD,  RGB_HUI,  RGB_RMOD, RGB_MOD,  _______,
-    _______,  X(D_FC),  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_HOME,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
+    _______,  X(D_FC),  X(BANG),  X(IRONY), X(SNEK),  _______,  _______,  _______,  _______,  _______,  KC_HOME,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
     KC_ENT,   _______,  NEXT_WD,  KC_ENT,   _______,  _______,  VIM_Y,    M_UNDO,   _______,  NEW_LN,   V_PASTE,  RGB_SAD,  RGB_SAI,  _______,            KC_MNXT,
     VIM_MD,   KC_END,   _______,  VIM_D,    _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      _______,  KC_MPRV,
     VI_LSHFT, _______,  KC_BSPC,  KC_DEL,   _______,  _______,  BACK_WD,  _______,  _______,  TAB_L,    TAB_R,    _______,  VI_RSHFT,           KC_PGUP,  _______,
