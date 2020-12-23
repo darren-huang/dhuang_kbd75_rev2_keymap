@@ -392,15 +392,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (record->event.pressed) { // on press
             if (clipboard_holds_line) {
                 if (vim_shift()) {
-                    SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_ENTER)) SS_TAP(X_UP) SS_TAP(X_PASTE));
+                    SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_ENTER)) SS_TAP(X_UP) SS_LCTL("v"));
                 } else {
-                    SEND_STRING(SS_TAP(X_END) SS_LSFT(SS_TAP(X_ENTER)) SS_TAP(X_PASTE));
+                    SEND_STRING(SS_TAP(X_END) SS_LSFT(SS_TAP(X_ENTER)) SS_LCTL("v"));
                 }
             } else { // regular paste
                 if (vim_shift()) {
-                    SEND_STRING(SS_TAP(X_PASTE));
+                    SEND_STRING(SS_LCTL("v"));
                 } else {
-                    SEND_STRING(SS_TAP(X_RIGHT) SS_TAP(X_PASTE));
+                    SEND_STRING(SS_TAP(X_RIGHT) SS_LCTL("v"));
                 }
             }
         } else { // on release:
