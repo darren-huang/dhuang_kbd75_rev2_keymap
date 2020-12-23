@@ -14,7 +14,7 @@ enum unicode_names {
 
 const uint32_t PROGMEM unicode_map[] = {
     [D_FC]  = 0x1F978,  // Disguised Face Emoji
-    [BANG]  = 0x1F97A,  // 🥺
+    [PLEAD]  = 0x1F97A,  // 🥺
     [IRONY] = 0x2E2E,  // ⸮
     [SNEK]  = 0x1F40D, // 🐍
 };
