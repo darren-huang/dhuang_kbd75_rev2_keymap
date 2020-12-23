@@ -49,13 +49,15 @@ void vim_mode_on(void) {
 void dy_vim_mode_on(Keyboard_Mode mode) {
     dy_mode_prev_mode = KB_mode;
     KB_mode = mode;
-    set_oneshot_layer(3, ONESHOT_START);
-    clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
+    layer_on(3);
+    //set_oneshot_layer(3, ONESHOT_START);
+    //clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
 }
 
 void dy_vim_mode_off(void) {
     KB_mode = dy_mode_prev_mode;
-    reset_oneshot_layer();
+    layer_off(3);
+    // reset_oneshot_layer();
 }
 
 // saving RGB settings  ----------------------
@@ -276,9 +278,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             // rgb settings
             save_rgb(&dy_mode_prev_rgb);
             set_vim_d_rgb();
-        } else { // on release:
+
             // turn mode on
             dy_vim_mode_on(D_Mode);
+        } else { // on release:
         }
         break;
     case VIM_Y:
@@ -286,9 +289,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             // rgb settings
             save_rgb(&dy_mode_prev_rgb);
             set_vim_y_rgb();
-        } else { // on release:
+
             // turn mode on
             dy_vim_mode_on(Y_Mode);
+        } else { // on release:
         }
         break;
     // vim delete/yank commands: -----------------------------------------
@@ -301,8 +305,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             clipboard_holds_line = false;
             load_rgb(&dy_mode_prev_rgb);
-        } else { // on release:
             dy_vim_mode_off();
+        } else { // on release:
         }
         break;
     case DY_B_WD:
@@ -314,8 +318,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             clipboard_holds_line = false;
             load_rgb(&dy_mode_prev_rgb);
-        } else { // on release:
             dy_vim_mode_off();
+        } else { // on release:
         }
         break;
     case DY_END:
@@ -327,8 +331,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             clipboard_holds_line = false;
             load_rgb(&dy_mode_prev_rgb);
-        } else { // on release:
             dy_vim_mode_off();
+        } else { // on release:
         }
         break;
     case DY_HOME:
@@ -340,8 +344,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             clipboard_holds_line = false;
             load_rgb(&dy_mode_prev_rgb);
-        } else { // on release:
             dy_vim_mode_off();
+        } else { // on release:
         }
         break;
     case D_LINE:
@@ -351,8 +355,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 clipboard_holds_line = true;
             }
             load_rgb(&dy_mode_prev_rgb);
-        } else { // on release:
             dy_vim_mode_off();
+        } else { // on release:
         }
         break;
     case Y_LINE:
@@ -362,15 +366,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 clipboard_holds_line = true;
             }
             load_rgb(&dy_mode_prev_rgb);
-        } else { // on release:
             dy_vim_mode_off();
+        } else { // on release:
         }
         break;
     case DY_UNSET:
         if (record->event.pressed) { // on press
             load_rgb(&dy_mode_prev_rgb);
-        } else { // on release:
             dy_vim_mode_off();
+        } else { // on release:
         }
         break;
 	// shift dependent commands -----------------------------------------------
