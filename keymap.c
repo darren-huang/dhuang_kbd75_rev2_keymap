@@ -255,7 +255,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             VIM_lshift = false;
         }
         break;
-    // vim commands ------------------------------------------------
+    // basic vim commands ------------------------------------------------
     case NEXT_WD:
         if (record->event.pressed) { // on press
             SEND_STRING(SS_LCTL(SS_TAP(X_RGHT)));
@@ -265,16 +265,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case BACK_WD:
         if (record->event.pressed) { // on press
             SEND_STRING(SS_LCTL(SS_TAP(X_LEFT)));
-        } else { // on release:
-        }
-        break;
-    case NEW_LN:
-        if (record->event.pressed) { // on press
-            if (vim_shift()) {
-                SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_ENT)) SS_TAP(X_UP));
-            } else {
-                SEND_STRING(SS_TAP(X_END) SS_LSFT(SS_TAP(X_ENT)));
-            }
         } else { // on release:
         }
         break;
@@ -420,13 +410,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         } else { // on release:
         }
         break;
-    case PRESET1:
+    case PRESET2:
         if (record->event.pressed) { // on press
             set_rgb_preset(2);
         } else { // on release:
         }
         break;
-    case PRESET1:
+    case PRESET3:
         if (record->event.pressed) { // on press
             set_rgb_preset(3);
         } else { // on release:
