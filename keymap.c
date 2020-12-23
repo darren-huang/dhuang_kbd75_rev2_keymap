@@ -50,6 +50,7 @@ void dy_vim_mode_on(Keyboard_Mode mode) {
     dy_mode_prev_mode = KB_mode;
     KB_mode = mode;
     set_oneshot_layer(3, ONESHOT_START);
+    clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
 }
 
 void dy_vim_mode_off(void) {
@@ -274,11 +275,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             // rgb settings
             save_rgb(&dy_mode_prev_rgb);
             set_vim_d_rgb();
-
+        } else { // on release:
             // turn mode on
             dy_vim_mode_on(D_Mode);
-        } else { // on release:
-            clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
         }
         break;
     case VIM_Y:
@@ -286,11 +285,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             // rgb settings
             save_rgb(&dy_mode_prev_rgb);
             set_vim_y_rgb();
-
+        } else { // on release:
             // turn mode on
             dy_vim_mode_on(Y_Mode);
-        } else { // on release:
-            clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
         }
         break;
     // vim delete/yank commands: -----------------------------------------
