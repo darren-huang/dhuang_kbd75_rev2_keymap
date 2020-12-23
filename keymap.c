@@ -4,6 +4,15 @@
 enum Keyboard_Mode {Regular_Mode, Vim_Mode, Y_Mode, D_Mode} KB_mode = Regular_Mode;
 typedef enum Keyboard_Mode Keyboard_Mode;
 
+// Define Emoji Map
+enum unicode_names {
+    D_FC
+};
+
+const uint32_t PROGMEM unicode_map[] = {
+    [D_FC]  = 0x1F978,  // Disguised Face Emoji
+};
+
 // Global Vars
 Keyboard_Mode dy_mode_prev_mode = Regular_Mode;
 
