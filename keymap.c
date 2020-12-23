@@ -329,7 +329,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case D_LINE:
         if (record->event.pressed) { // on press
             if (KB_mode  == D_Mode) {
-                SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)) SS_TAP(X_CUT));
+                SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)) SS_TAP(X_CUT) SS_LSFT(SS_TAP(X_UP) SS_TAP(X_END)) SS_TAP(X_BSPC));
                 clipboard_holds_line = true;
             }
             load_rgb(dy_mode_prev_rgb);
@@ -340,7 +340,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case Y_LINE:
         if (record->event.pressed) { // on press
             if (KB_mode  == Y_Mode) {
-                SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)) SS_TAP(X_CUT));
+                SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)) SS_TAP(X_CUT));
                 clipboard_holds_line = true;
             }
             load_rgb(dy_mode_prev_rgb);
@@ -370,11 +370,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (record->event.pressed) { // on press
             if (clipboard_holds_line) {
                 if (vim_shift()) {
+                    SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_ENTER)) SS_TAP(X_UP) SS_TAP(X_PASTE));
                 } else {
+                    SEND_STRING(SS_TAP(X_END) SS_LSFT(SS_TAP(X_ENTER)) SS_TAP(X_PASTE));
                 }
             } else { // regular paste
                 if (vim_shift()) {
+                    SEND_STRING(SS_TAP(X_PASTE));
                 } else {
+                    SEND_STRING(SS_TAP(X_RIGHT) SS_TAP(X_PASTE));
                 }
             }
         } else { // on release:
