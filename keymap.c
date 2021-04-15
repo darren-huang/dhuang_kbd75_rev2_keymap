@@ -30,6 +30,11 @@ bool VIM_rshift = false;
 bool clipboard_holds_line = false;
 uint8_t RGB_val_vim = 150;
 
+uint8_t NUM_LAYER_NUM = 1;
+uint8_t FUNC_LAYER_NUM = 2;
+uint8_t VIM_LAYER_NUM = 3;
+uint8_t DY_LAYER_NUM = 4;
+
 
 bool vim_shift(void) {
     return VIM_lshift || VIM_rshift;
@@ -87,15 +92,6 @@ void load_rgb(rgblight_config_t* config) {
     } else {
        rgblight_disable(); 
     }
-}
-
-void set_vim_rgb(void) {
-}
-
-void set_vim_d_rgb(void) {
-}
-
-void set_vim_y_rgb(void) {
 }
 
 enum rgb_preset {
@@ -234,14 +230,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case VIM_MD:
         if (record->event.pressed) { // on press
             save_rgb(&vim_mode_prev_rgb); // backup the current rgb settings
-            set_vim_rgb(); // set the vim rgb
+            set_rgb_preset(VIM_RGB); // set the vim rgb
         } else { // on release:
             vim_mode_on();
         }
         break;
     case VIM_RST:
         if (record->event.pressed) { // on press
-            set_vim_rgb(); // set the vim rgb
+            set_rgb_preset(VIM_RGB); // set the vim rgb
         } else { // on release:
             vim_mode_on();
         }
@@ -308,7 +304,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (record->event.pressed) { // on press
             // rgb settings
             save_rgb(&dy_mode_prev_rgb);
-            set_vim_d_rgb();
+            set_rgb_preset(VIM_D_RGB);
 
             // turn mode on
             dy_vim_mode_on(D_Mode);
@@ -319,7 +315,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (record->event.pressed) { // on press
             // rgb settings
             save_rgb(&dy_mode_prev_rgb);
-            set_vim_y_rgb();
+            set_rgb_preset(VIM_Y_RGB);
 
             // turn mode on
             dy_vim_mode_on(Y_Mode);
@@ -469,8 +465,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_LSFT,  KC_LSFT,  KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,  KC_RSFT,            KC_UP,    KC_MPLY,
     KC_LCTL,  KC_LGUI,  KC_LALT,                      KC_SPC,   KC_SPC,   KC_SPC,                       KC_RALT,  MO(1),    MO(1),    KC_LEFT,  KC_DOWN,  KC_RGHT
   ),
-
-  [1] = LAYOUT( // function layer
+  
+  [1] = LAYOUT( // num layer
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,                      _______,  _______,
+    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,  _______,
+    _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  _______,  _______,  _______
+  ),
+  
+  [2] = LAYOUT( // function layer
     RESET,    PRESET1,  PRESET2,  PRESET3,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_HUD,  RGB_HUI,  RGB_RMOD, RGB_MOD,  _______,
     _______,  X(D_FC),  X(PLEAD),  X(IRONY), X(SNEK),  _______,  _______,  _______,  _______,  _______,  KC_HOME,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
     KC_ENT,   _______,  NEXT_WD,  KC_ENT,   _______,  _______,  VIM_Y,    M_UNDO,   _______,  NEW_LN,   V_PASTE,  RGB_SAD,  RGB_SAI,  _______,            KC_MNXT,
@@ -479,7 +484,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,  _______,  _______,                      KC_ENT,   KC_ENT,   KC_ENT,                       _______,  _______,  _______,  VDKTP_L,  KC_PGDN,  VDKTP_R
   ),
 
-  [2] = LAYOUT( // vim mode layer
+  [3] = LAYOUT( // vim mode layer
     REG_MD,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
     REG_MD,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_HOME,  _______,  _______,  _______,  _______,  _______,
     REG_MD,   _______,  NEXT_WD,  _______,  _______,  _______,  VIM_Y,    M_UNDO,   REG_MD,   NEW_LN,   V_PASTE,  _______,  _______,  _______,            _______,
@@ -488,7 +493,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,  _______,  _______,                      _______,  _______,  _______,                      _______,  _______,  _______,  _______,  _______,  _______
   ),
 
-  [3] = LAYOUT( // delete / yank mode layer
+  [4] = LAYOUT( // delete / yank mode layer
     DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, 
     DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_END,   DY_UNSET, DY_HOME,  DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, 
     DY_UNSET, DY_UNSET, DY_N_WD,  DY_UNSET, DY_UNSET, DY_UNSET, Y_LINE,   DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET, DY_UNSET,           DY_UNSET, 
