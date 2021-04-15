@@ -90,39 +90,64 @@ void load_rgb(rgblight_config_t* config) {
 }
 
 void set_vim_rgb(void) {
-    //load vim rgb settings
-    rgblight_mode(RGBLIGHT_MODE_RAINBOW_SWIRL + 5);
-    rgblight_sethsv(rgblight_config.hue, 255,
-                    rgblight_config.val > RGB_val_vim ? rgblight_config.val : RGB_val_vim);
-    rgblight_enable();
 }
 
 void set_vim_d_rgb(void) {
-    //load vim d (delete) mode rgb settings
-    rgblight_mode(RGBLIGHT_MODE_SNAKE + 2);
-    rgblight_sethsv(HSV_RED);
-    rgblight_enable();
 }
 
 void set_vim_y_rgb(void) {
-    //load vim y (yank) mode rgb settings
-    rgblight_mode(RGBLIGHT_MODE_SNAKE + 3);
-    rgblight_sethsv(HSV_YELLOW);
-    rgblight_enable();
 }
 
-void set_rgb_preset(int preset) {
-    rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
-    rgblight_enable();
+enum rgb_preset {
+    WHITE_RGB,
+    RED_RGB,
+    DRACULA_RGB,
+    CYAN_RGB,
+    VIM_RGB,
+    VIM_D_RGB,
+    VIM_Y_RGB,
+};
+
+void set_rgb_preset(enum rgb_preset preset) {
     switch (preset) {
-    case 1:
+    case WHITE_RGB:
+        rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
         rgblight_sethsv(HSV_WHITE);
+        rgblight_enable();
         break;
-    case 2:
+    case RED_RGB:
+        rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
         rgblight_sethsv(HSV_RED);
+        rgblight_enable();
         break;
-    case 3:
+    case DRACULA_RGB:
+        rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
         rgblight_setrgb(189, 147, 249);
+        rgblight_enable();
+        break;
+    case CYAN_RGB:
+        rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
+        rgblight_sethsv(HSV_CYAN);
+        rgblight_enable();
+        break;
+    case VIM_RGB:
+        //load vim rgb settings
+        rgblight_mode(RGBLIGHT_MODE_RAINBOW_SWIRL + 5);
+        rgblight_sethsv(rgblight_config.hue, 255,
+                        rgblight_config.val > RGB_val_vim ? rgblight_config.val : RGB_val_vim);
+        rgblight_enable();
+        break;
+    case VIM_D_RGB:
+        //load vim d (delete) mode rgb settings
+        rgblight_mode(RGBLIGHT_MODE_SNAKE + 2);
+        rgblight_sethsv(HSV_RED);
+        rgblight_enable();
+        break;
+    case VIM_Y_RGB:
+        //load vim y (yank) mode rgb settings
+        rgblight_mode(RGBLIGHT_MODE_SNAKE + 3);
+        rgblight_sethsv(HSV_YELLOW);
+        rgblight_enable();
         break;
     }
 }
