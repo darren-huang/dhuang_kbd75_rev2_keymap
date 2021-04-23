@@ -1,7 +1,7 @@
 #include QMK_KEYBOARD_H
 
 // Define Types
-enum Keyboard_Mode {Regular_Mode, Vim_Mode, Y_Mode, D_Mode} KB_mode = Regular_Mode;
+enum Keyboard_Mode {Regular_Mode, Num_Mode, Vim_Mode, Y_Mode, D_Mode} KB_mode = Regular_Mode;
 typedef enum Keyboard_Mode Keyboard_Mode;
 
 // Define Emoji Map
@@ -47,13 +47,21 @@ void reset_vim_vars(void) {
 
 void regular_mode_on(void) {
     KB_mode = Regular_Mode;
+    layer_off(1);
     layer_off(2);
+    layer_off(3);
+    reset_vim_vars();
+}
+
+void num_mode_on(void) {
+    KB_mode = Num_Mode;
+    layer_on(1);
     reset_vim_vars();
 }
 
 void vim_mode_on(void) {
     KB_mode = Vim_Mode;
-    layer_on(2);
+    layer_on(3);
     reset_vim_vars();
 }
 
@@ -158,9 +166,11 @@ enum custom_keycodes {
     TAB_R,   // move to the tab to the right (for chrome)
     TAB_L,   // move to the tab to the left (for chrome)
 
-    VIM_MD,  // enter vim mode // layer 3
+    VIM_MD,  // enter vim mode 
     VIM_RST, // reset vim settings (for use only in the vim layer)
-    REG_MD,  // enter insert mode (or just regular mode) // layer 1
+    REG_MD,  // enter insert mode (or just regular mode)
+    NUM_MD,  // enter number mode
+    NUM_MDT, // number mode toggle
     APPEND,  // append to insert mode (right arrow then regular mode)
     VIENTER, // vim enter (after pressing enter will go back to regular mode)
 
@@ -248,6 +258,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         } else { // on release:
             //change layer
             regular_mode_on();
+        }
+        break;
+    case NUM_MD:
+        if (record->event.pressed) { // on press
+            save_rgb(&vim_mode_prev_rgb); // backup the current rgb settings
+            set_rgb_preset(CYAN_RGB); // set the num rgb
+        } else { // on release:
+            num_mode_on();
+        }
+        break;
+    case NUM_MDT:
+        if (record->event.pressed) { // on press
+            if (KB_mode == Num_Mode) {
+                load_rgb(&vim_mode_prev_rgb);
+            } else if (KB_mode == Regular_Mode) {
+                save_rgb(&vim_mode_prev_rgb); // backup the current rgb settings
+                set_rgb_preset(CYAN_RGB); // set the num rgb
+            }
+        } else { // on release:
+            if (KB_mode == Num_Mode) {
+                regular_mode_on();
+            } else if (KB_mode == Regular_Mode) {
+                num_mode_on();
+            }
         }
         break;
     case APPEND:
@@ -463,7 +497,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,  KC_RBRC,  KC_BSLS,            KC_VOLU,
     KC_ESC,   KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,                      KC_ENT,   KC_VOLD,
     KC_LSFT,  KC_LSFT,  KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,  KC_RSFT,            KC_UP,    KC_MPLY,
-    KC_LCTL,  KC_LGUI,  KC_LALT,                      KC_SPC,   KC_SPC,   KC_SPC,                       KC_RALT,  MO(1),    MO(1),    KC_LEFT,  KC_DOWN,  KC_RGHT
+    KC_LCTL,  KC_LGUI,  KC_LALT,                      KC_SPC,   KC_SPC,   KC_SPC,                       KC_RALT,  MO(2),    MO(2),    KC_LEFT,  KC_DOWN,  KC_RGHT
   ),
   
   [1] = LAYOUT( // num layer
@@ -477,11 +511,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   
   [2] = LAYOUT( // function layer
     RESET,    PRESET1,  PRESET2,  PRESET3,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_HUD,  RGB_HUI,  RGB_RMOD, RGB_MOD,  _______,
-    _______,  X(D_FC),  X(PLEAD),  X(IRONY), X(SNEK),  _______,  _______,  _______,  _______,  _______,  KC_HOME,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
-    KC_ENT,   _______,  NEXT_WD,  KC_ENT,   _______,  _______,  VIM_Y,    M_UNDO,   _______,  NEW_LN,   V_PASTE,  RGB_SAD,  RGB_SAI,  _______,            KC_MNXT,
+    _______,  X(D_FC),  X(PLEAD), X(IRONY), X(SNEK),  _______,  _______,  _______,  _______,  _______,  KC_HOME,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
+    KC_ENT,   _______,  NEXT_WD,  KC_ENT,   _______,  _______,  VIM_Y,    M_UNDO,   KC_I,     NEW_LN,   V_PASTE,  RGB_SAD,  RGB_SAI,  _______,            KC_MNXT,
     VIM_MD,   KC_END,   _______,  VIM_D,    _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      _______,  KC_MPRV,
     VI_LSHFT, _______,  KC_BSPC,  KC_DEL,   _______,  _______,  BACK_WD,  _______,  _______,  TAB_L,    TAB_R,    _______,  VI_RSHFT,           KC_PGUP,  _______,
-    _______,  _______,  _______,                      KC_ENT,   KC_ENT,   KC_ENT,                       _______,  _______,  _______,  VDKTP_L,  KC_PGDN,  VDKTP_R
+    _______,  _______,  _______,                      KC_ENT,   KC_ENT,   KC_ENT,                       NUM_MDT,  _______,  _______,  VDKTP_L,  KC_PGDN,  VDKTP_R
   ),
 
   [3] = LAYOUT( // vim mode layer
