@@ -192,9 +192,10 @@ enum custom_keycodes {
     NEW_LN,  // add a new line
     V_PASTE, // paste in vim 
 
-    PRESET1, // turn on 1st rgb preset
-    PRESET2, // turn on 1st rgb preset
-    PRESET3, // turn on 1st rgb preset
+    PRE_WHI, // turn on rgb preset
+    PRE_DRA, // turn on rgb preset
+    PRE_RED, // turn on rgb preset
+    PRE_RED, // turn on rgb preset
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -466,21 +467,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         } else { // on release:
         }
         break;
-    case PRESET1:
+    case PRE_WHI:
         if (record->event.pressed) { // on press
-            set_rgb_preset(1);
+            set_rgb_preset(WHITE_RGB);
         } else { // on release:
         }
         break;
-    case PRESET2:
+    case PRE_DRA:
         if (record->event.pressed) { // on press
-            set_rgb_preset(2);
+            set_rgb_preset(DRACULA_RGB);
         } else { // on release:
         }
         break;
-    case PRESET3:
+    case PRE_RED:
         if (record->event.pressed) { // on press
-            set_rgb_preset(3);
+            set_rgb_preset(RED_RGB);
         } else { // on release:
         }
         break;
@@ -509,7 +510,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   
   [2] = LAYOUT( // function layer
-    RESET,    PRESET1,  PRESET2,  PRESET3,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_HUD,  RGB_HUI,  RGB_RMOD, RGB_MOD,  _______,
+    RESET,    PRE_WHI,  PRE_DRA,  PRE_RED,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_HUD,  RGB_HUI,  RGB_RMOD, RGB_MOD,  _______,
     _______,  X(D_FC),  X(PLEAD), X(IRONY), X(SNEK),  _______,  _______,  _______,  _______,  _______,  KC_HOME,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
     KC_ENT,   _______,  NEXT_WD,  KC_ENT,   _______,  _______,  VIM_Y,    M_UNDO,   KC_I,     NEW_LN,   V_PASTE,  RGB_SAD,  RGB_SAI,  _______,            KC_MNXT,
     VIM_MD,   KC_END,   _______,  VIM_D,    _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      _______,  KC_MPRV,
