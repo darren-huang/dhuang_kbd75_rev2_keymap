@@ -124,7 +124,8 @@ void set_rgb_preset(enum rgb_preset preset) {
         break;
     case DRACULA_RGB:
         rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
-        rgblight_setrgb(189, 147, 249);
+        //rgblight_setrgb(189, 147, 249);
+        rgblight_sethsv(187, 105, 249);
         rgblight_enable();
         break;
     case CYAN_RGB:
