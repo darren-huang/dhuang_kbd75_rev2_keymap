@@ -1,5 +1,10 @@
 #include QMK_KEYBOARD_H
 
+#define _NUM_LAYER 1
+#define _FL 2 // function layer, shortened for the keymaps section
+#define _VIM_LAYER 3
+#define _DY_LAYER 4
+
 // Define Types
 enum Keyboard_Mode {Regular_Mode, Num_Mode, Vim_Mode, Y_Mode, D_Mode} KB_mode = Regular_Mode;
 typedef enum Keyboard_Mode Keyboard_Mode;
@@ -23,18 +28,17 @@ const uint32_t PROGMEM unicode_map[] = {
 Keyboard_Mode dy_mode_prev_mode = Regular_Mode;
 
 extern rgblight_config_t rgblight_config;
-rgblight_config_t vim_mode_prev_rgb, dy_mode_prev_rgb;
+rgblight_config_t vim_mode_prev_rgb;
+rgblight_config_t dy_mode_prev_rgb;
+rgblight_config_t num_mode_prev_rgb;
+rgblight_config_t jptr_mode_prev_rgb;
+
+bool JPTR_Mode_On = false;
 
 bool VIM_lshift = false;
 bool VIM_rshift = false;
 bool clipboard_holds_line = false;
 uint8_t RGB_val_vim = 150;
-
-uint8_t NUM_LAYER_NUM = 1;
-uint8_t _FL = 2; // function layer, shortened for the keymaps section
-uint8_t VIM_LAYER_NUM = 3;
-uint8_t DY_LAYER_NUM = 4;
-
 
 bool vim_shift(void) {
     return VIM_lshift || VIM_rshift;
@@ -47,33 +51,33 @@ void reset_vim_vars(void) {
 
 void regular_mode_on(void) {
     KB_mode = Regular_Mode;
-    layer_off(NUM_LAYER_NUM);
+    layer_off(_NUM_LAYER);
     layer_off(_FL);
-    layer_off(VIM_LAYER_NUM);
+    layer_off(_VIM_LAYER);
     reset_vim_vars();
 }
 
 void num_mode_on(void) {
     KB_mode = Num_Mode;
-    layer_on(NUM_LAYER_NUM);
+    layer_on(_NUM_LAYER);
     reset_vim_vars();
 }
 
 void vim_mode_on(void) {
     KB_mode = Vim_Mode;
-    layer_on(VIM_LAYER_NUM);
+    layer_on(_VIM_LAYER);
     reset_vim_vars();
 }
 
 void dy_vim_mode_on(Keyboard_Mode mode) {
     dy_mode_prev_mode = KB_mode;
     KB_mode = mode;
-    layer_on(DY_LAYER_NUM);
+    layer_on(_DY_LAYER);
 }
 
 void dy_vim_mode_off(void) {
     KB_mode = dy_mode_prev_mode;
-    layer_off(DY_LAYER_NUM);
+    layer_off(_DY_LAYER);
     // reset_oneshot_layer();
 }
 
@@ -105,6 +109,7 @@ enum rgb_preset {
     RED_RGB,
     DRACULA_RGB,
     CYAN_RGB,
+    GOLD_RGB,
     TWK_RGB,
     VIM_RGB,
     VIM_D_RGB,
@@ -132,6 +137,11 @@ void set_rgb_preset(enum rgb_preset preset) {
     case CYAN_RGB:
         rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
         rgblight_sethsv(HSV_CYAN);
+        rgblight_enable();
+        break;
+    case GOLD_RGB:
+        rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
+        rgblight_sethsv(HSV_GOLDENROD);
         rgblight_enable();
         break;
     case TWK_RGB:
@@ -176,6 +186,7 @@ enum custom_keycodes {
     REG_MD,  // enter insert mode (or just regular mode)
     NUM_MD,  // enter number mode
     NUM_MDT, // number mode toggle
+    JPTR_MDT,// jupyter mode toggle, makes vim stuffs use 'enter' instead of shift 'enter'
     APPEND,  // append to insert mode (right arrow then regular mode)
     VIENTER, // vim enter (after pressing enter will go back to regular mode)
 
@@ -277,9 +288,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case NUM_MDT:
         if (record->event.pressed) { // on press
             if (KB_mode == Num_Mode) {
-                load_rgb(&vim_mode_prev_rgb);
+                load_rgb(&num_mode_prev_rgb);
             } else if (KB_mode == Regular_Mode) {
-                save_rgb(&vim_mode_prev_rgb); // backup the current rgb settings
+                save_rgb(&num_mode_prev_rgb); // backup the current rgb settings
                 set_rgb_preset(CYAN_RGB); // set the num rgb
             }
         } else { // on release:
@@ -288,6 +299,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             } else if (KB_mode == Regular_Mode) {
                 num_mode_on();
             }
+        }
+        break;
+    case JPTR_MDT:
+        if (record->event.pressed) { // on press
+            if (!JPTR_Mode_On) { // regular mode
+                save_rgb(&jptr_mode_prev_rgb); // backup the current rgb settings
+                set_rgb_preset(GOLD_RGB); // set the num rgb
+            } else { // jptr mode
+                load_rgb(&jptr_mode_prev_rgb); // backup the current rgb settings
+            }
+        } else { // on release:
+            JPTR_Mode_On = !JPTR_Mode_On;
         }
         break;
     case APPEND:
@@ -448,9 +471,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case NEW_LN:
         if (record->event.pressed) { // on press
             if (vim_shift()) {
-                SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_ENTER)) SS_TAP(X_UP));
+                if (JPTR_Mode_On) {
+                    SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_ENTER) SS_TAP(X_UP));
+                } else {
+                    SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_ENTER)) SS_TAP(X_UP));
+                }
             } else {
-                SEND_STRING(SS_TAP(X_END) SS_LSFT(SS_TAP(X_ENTER)));
+                if (JPTR_Mode_On) {
+                    SEND_STRING(SS_TAP(X_END) SS_TAP(X_ENTER));
+                } else {
+                    SEND_STRING(SS_TAP(X_END) SS_LSFT(SS_TAP(X_ENTER)));
+                }
             }
         } else { // on release:
         }
@@ -459,9 +490,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (record->event.pressed) { // on press
             if (clipboard_holds_line) {
                 if (vim_shift()) {
-                    SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_ENTER)) SS_TAP(X_UP) SS_LCTL("v"));
+                    if (JPTR_Mode_On) {
+                        SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_ENTER) SS_TAP(X_UP) SS_LCTL("v"));
+                    } else {
+                        SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_ENTER)) SS_TAP(X_UP) SS_LCTL("v"));
+                    }
                 } else {
-                    SEND_STRING(SS_TAP(X_END) SS_LSFT(SS_TAP(X_ENTER)) SS_LCTL("v"));
+                    if (JPTR_Mode_On) {
+                        SEND_STRING(SS_TAP(X_END) SS_TAP(X_ENTER) SS_LCTL("v"));
+                    } else {
+                        SEND_STRING(SS_TAP(X_END) SS_LSFT(SS_TAP(X_ENTER)) SS_LCTL("v"));
+                    }
                 }
             } else { // regular paste
                 if (vim_shift()) {
@@ -509,7 +548,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,  KC_RBRC,  KC_BSLS,            KC_VOLU,
     KC_ESC,   KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,                      KC_ENT,   KC_VOLD,
     KC_LSFT,  KC_LSFT,  KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,  KC_RSFT,            KC_UP,    KC_MPLY,
-    KC_LCTL,  KC_LGUI,  KC_LALT,                      KC_SPC,   KC_SPC,   KC_SPC,                       KC_RALT,  MO(_FL),    MO(_FL),    KC_LEFT,  KC_DOWN,  KC_RGHT
+    KC_LCTL,  KC_LGUI,  KC_LALT,                      KC_SPC,   KC_SPC,   KC_SPC,                       KC_RALT,  MO(_FL),  MO(_FL),  KC_LEFT,  KC_DOWN,  KC_RGHT
   ),
   
   [1] = LAYOUT( // num layer
@@ -524,9 +563,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [2] = LAYOUT( // function layer
     RESET,    PRE_TWK,  PRE_DRA,  PRE_RED,  PRE_WHI,  _______,  _______,  _______,  _______,  _______,  _______,  RGB_HUD,  RGB_HUI,  RGB_RMOD, RGB_MOD,  _______,
     _______,  X(D_FC),  X(PLEAD), X(IRONY), X(SNEK),  _______,  _______,  _______,  _______,  _______,  KC_HOME,  RGB_VAD,  RGB_VAI,  RGB_TOG,  RGB_TOG,  KC_SLEP,
-    KC_ENT,   _______,  NEXT_WD,  KC_ENT,   _______,  _______,  VIM_Y,    M_UNDO,   KC_I,     NEW_LN,   V_PASTE,  RGB_SAD,  RGB_SAI,  _______,            KC_MNXT,
-    VIM_MD,   KC_END,   _______,  VIM_D,    _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      _______,  KC_MPRV,
-    VI_LSHFT, _______,  KC_BSPC,  KC_DEL,   _______,  _______,  BACK_WD,  _______,  _______,  TAB_L,    TAB_R,    _______,  VI_RSHFT,           KC_PGUP,  _______,
+    KC_ENT,   _______,  NEXT_WD,  KC_ENT,   _______,  _______,  VIM_Y,    M_UNDO,   KC_I,     NEW_LN,   V_PASTE,  RGB_SAD,  RGB_SAI,  JPTR_MDT,           KC_MNXT,
+    VIM_MD,   KC_END,   _______,  VIM_D,    _______,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  _______,  _______,                      JPTR_MDT, KC_MPRV,
+    VI_LSHFT, _______,  KC_BSPC,  KC_DEL,   _______,  _______,  BACK_WD,  _______,  _______,  TAB_L,    TAB_R,    _______,  VI_RSHFT,           KC_PGUP,  KC_MUTE,
     _______,  _______,  _______,                      KC_ENT,   KC_ENT,   KC_ENT,                       NUM_MDT,  _______,  _______,  VDKTP_L,  KC_PGDN,  VDKTP_R
   ),
 
