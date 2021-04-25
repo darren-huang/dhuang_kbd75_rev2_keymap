@@ -395,8 +395,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             clipboard_holds_line = false;
             load_rgb(&dy_mode_prev_rgb);
-            dy_vim_mode_off();
         } else { // on release:
+            dy_vim_mode_off();
         }
         break;
     case DY_B_WD:
@@ -408,8 +408,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             clipboard_holds_line = false;
             load_rgb(&dy_mode_prev_rgb);
-            dy_vim_mode_off();
         } else { // on release:
+            dy_vim_mode_off();
         }
         break;
     case DY_END:
@@ -421,8 +421,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             clipboard_holds_line = false;
             load_rgb(&dy_mode_prev_rgb);
-            dy_vim_mode_off();
         } else { // on release:
+            dy_vim_mode_off();
         }
         break;
     case DY_HOME:
@@ -434,8 +434,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             clipboard_holds_line = false;
             load_rgb(&dy_mode_prev_rgb);
-            dy_vim_mode_off();
         } else { // on release:
+            dy_vim_mode_off();
         }
         break;
     case D_LINE:
@@ -463,8 +463,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case DY_UNSET:
         if (record->event.pressed) { // on press
             load_rgb(&dy_mode_prev_rgb);
-            dy_vim_mode_off();
         } else { // on release:
+            dy_vim_mode_off();
         }
         break;
 	// shift dependent commands -----------------------------------------------
